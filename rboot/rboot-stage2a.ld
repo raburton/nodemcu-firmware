@@ -4,8 +4,8 @@ MEMORY
 {
   dport0_0_seg :                        org = 0x3FF00000, len = 0x10
   dram0_0_seg :                         org = 0x3FFE8000, len = 0x14000
-  iram1_0_seg :                         org = 0x40100000, len = 0x8000
-  irom0_0_seg :                         org = 0x40202010, len = 0xA0000
+  iram1_0_seg :                         org = 0x4010FC00, len = 0x400
+  irom0_0_seg :                         org = 0x40240000, len = 0x3C000
 }
 
 PHDRS
@@ -19,7 +19,7 @@ PHDRS
 
 
 /*  Default entry point:  */
-ENTRY(user_start_trampoline)
+ENTRY(call_user_start)
 EXTERN(_DebugExceptionVector)
 EXTERN(_DoubleExceptionVector)
 EXTERN(_KernelExceptionVector)
@@ -71,34 +71,6 @@ SECTIONS
     _dport0_data_end = ABSOLUTE(.);
   } >dport0_0_seg :dport0_0_phdr
 
-  .irom0.text : ALIGN(4)
-  {
-    _irom0_text_start = ABSOLUTE(.);
-    *(.servercert.flash)
-    *(.clientcert.flash)
-    *(.irom0.literal .irom.literal .irom.text.literal .irom0.text .irom.text)
-    *(.literal.* .text.*)
-    *(.rodata*)
-    *(.sdk.version)
-
-    /* Link-time arrays containing the defs for the included modules */
-    . = ALIGN(4);
-    lua_libs = ABSOLUTE(.);
-    /* Allow either empty define or defined-to-1 to include the module */
-    KEEP(*(.lua_libs))
-    LONG(0) LONG(0) /* Null-terminate the array */
-    lua_rotable = ABSOLUTE(.);
-    KEEP(*(.lua_rotable))
-    LONG(0) LONG(0) /* Null-terminate the array */
-
-    /* SDK doesn't use libc functions, and are therefore safe to put in flash */
-    */libc.a:*.o(.text* .literal*)
-    /* end libc functions */
-
-    _irom0_text_end = ABSOLUTE(.);
-    _flash_used_end = ABSOLUTE(.);
-  } >irom0_0_seg :irom0_0_phdr =0xffffffff
-
   .data : ALIGN(4)
   {
     _data_start = ABSOLUTE(.);
@@ -119,7 +91,10 @@ SECTIONS
   .rodata : ALIGN(4)
   {
     _rodata_start = ABSOLUTE(.);
+    *(.rodata)
+    *(.rodata.*)
     *(.gnu.linkonce.r.*)
+    *(.rodata1)
     __XT_EXCEPTION_TABLE__ = ABSOLUTE(.);
     *(.xt_except_table)
     *(.gcc_except_table)
@@ -206,8 +181,7 @@ SECTIONS
     *(.entry.text)
     *(.init.literal)
     *(.init)
-    *(.literal .text .stub .gnu.warning .gnu.linkonce.literal.* .gnu.linkonce.t.*.literal .gnu.linkonce.t.*)
-    *(.iram0.text)
+    *(.literal .text .literal.* .text.* .stub .gnu.warning .gnu.linkonce.literal.* .gnu.linkonce.t.*.literal .gnu.linkonce.t.*)
     *(.fini.literal)
     *(.fini)
     *(.gnu.version)
@@ -223,6 +197,13 @@ SECTIONS
     *(.gnu.linkonce.lit4.*)
     _lit4_end = ABSOLUTE(.);
   } >iram1_0_seg :iram1_0_phdr
+
+  .irom0.text : ALIGN(4)
+  {
+    _irom0_text_start = ABSOLUTE(.);
+    *(.irom0.literal .irom.literal .irom.text.literal .irom0.text .irom.text)
+    _irom0_text_end = ABSOLUTE(.);
+  } >irom0_0_seg :irom0_0_phdr
 
 }
 

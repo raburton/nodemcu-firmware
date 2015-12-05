@@ -40,5 +40,7 @@ INCLUDES := $(INCLUDES) -I $(PDIR)include
 INCLUDES += -I ./
 INCLUDES += -I ../libc
 INCLUDES += -I ../platform
+INCLUDES += -I ../rboot
+INCLUDES += -I ../../rboot
 PDIR := ../$(PDIR)
 sinclude $(PDIR)Makefile

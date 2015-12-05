@@ -9,9 +9,11 @@
 
 // ******* C API functions *************
 
+extern void Cache_Read_Enable_New ();
+
 void rtctime_early_startup (void)
 {
-  Cache_Read_Enable (0, 0, 1);
+  Cache_Read_Enable_New ();
   rtc_time_register_bootup ();
   rtc_time_switch_clocks ();
   Cache_Read_Disable ();

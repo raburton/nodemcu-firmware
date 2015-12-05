@@ -1,7 +1,10 @@
 #include "c_stdio.h"
 #include "platform.h"
 #include "spiffs.h"
-  
+#ifdef SPIFFS_FIXED_OFFSET_RBOOT
+#include "rboot-api.h"
+#endif
+
 spiffs fs;
 
 #define LOG_PAGE_SIZE       256
@@ -46,14 +49,21 @@ The small 4KB sectors allow for greater flexibility in applications th
 
 void myspiffs_mount() {
   spiffs_config cfg;
-#ifdef SPIFFS_FIXED_LOCATION
+#if defined(SPIFFS_FIXED_LOCATION)
   cfg.phys_addr = SPIFFS_FIXED_LOCATION;
+#elif defined(SPIFFS_FIXED_OFFSET_RBOOT)
+  rboot_config bootconf = rboot_get_config();
+  cfg.phys_addr = SPIFFS_FIXED_OFFSET_RBOOT + (bootconf.roms[bootconf.current_rom] - 0x2000);
 #else
   cfg.phys_addr = ( u32_t )platform_flash_get_first_free_block_address( NULL ); 
-#endif
   cfg.phys_addr += 0x3FFF;
   cfg.phys_addr &= 0xFFFFC000;  // align to 4 sector.
+#endif
+#ifdef SPIFFS_FIXED_SIZE
+  cfg.phys_size = SPIFFS_FIXED_SIZE;
+#else
   cfg.phys_size = INTERNAL_FLASH_SIZE - ( ( u32_t )cfg.phys_addr );
+#endif
   cfg.phys_erase_block = INTERNAL_FLASH_SECTOR_SIZE; // according to datasheet
   cfg.log_block_size = INTERNAL_FLASH_SECTOR_SIZE; // let us not complicate things
   cfg.log_page_size = LOG_PAGE_SIZE; // as we said
@@ -89,16 +99,24 @@ int myspiffs_format( void )
 {
   SPIFFS_unmount(&fs);
   u32_t sect_first, sect_last;
-#ifdef SPIFFS_FIXED_LOCATION
+
+#if defined(SPIFFS_FIXED_LOCATION)
   sect_first = SPIFFS_FIXED_LOCATION;
+#elif defined(SPIFFS_FIXED_OFFSET_RBOOT)
+  rboot_config bootconf = rboot_get_config();
+  sect_first = SPIFFS_FIXED_OFFSET_RBOOT + (bootconf.roms[bootconf.current_rom] - 0x2000);
 #else
   sect_first = ( u32_t )platform_flash_get_first_free_block_address( NULL ); 
-#endif
   sect_first += 0x3FFF;
   sect_first &= 0xFFFFC000;  // align to 4 sector.
+#endif
   sect_first = platform_flash_get_sector_of_address(sect_first);
+#ifdef SPIFFS_FIXED_SIZE
+  sect_last = (sect_first + platform_flash_get_sector_of_address(SPIFFS_FIXED_SIZE)) - 1;
+#else
   sect_last = INTERNAL_FLASH_SIZE - SYS_PARAM_SEC_NUM;
   sect_last = platform_flash_get_sector_of_address(sect_last);
+#endif
   NODE_DBG("sect_first: %x, sect_last: %x\n", sect_first, sect_last);
   while( sect_first <= sect_last )
     if( platform_flash_erase_sector( sect_first ++ ) == PLATFORM_ERR )

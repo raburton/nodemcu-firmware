@@ -12,10 +12,8 @@
 #     a generated lib/image xxx.a ()
 #
 ifndef PDIR
-GEN_LIBS = libmodules.a
+GEN_LIBS = rboot.a
 endif
-
-STD_CFLAGS=-std=gnu11 -Wimplicit
 
 #############################################################
 # Configuration i.e. compile options etc.
@@ -41,18 +39,6 @@ STD_CFLAGS=-std=gnu11 -Wimplicit
 INCLUDES := $(INCLUDES) -I $(PDIR)include
 INCLUDES += -I ./
 INCLUDES += -I ../libc
-INCLUDES += -I ../coap
-INCLUDES += -I ../mqtt
-INCLUDES += -I ../u8glib
-INCLUDES += -I ../ucglib
-INCLUDES += -I ../lua
-INCLUDES += -I ../platform
-INCLUDES += -I ../spiffs
-INCLUDES += -I ../smart
-INCLUDES += -I ../cjson
-INCLUDES += -I ../dhtlib
-INCLUDES += -I ../http
-INCLUDES += -I ../rboot
 INCLUDES += -I ../../rboot
 PDIR := ../$(PDIR)
 sinclude $(PDIR)Makefile

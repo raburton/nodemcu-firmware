@@ -22,6 +22,24 @@ extern void luaL_assertfail(const char *file, int line, const char *message);
 #define lua_assert(x)    ((x) ? (void) 0 : luaL_assertfail(__FILE__, __LINE__, #x))
 #endif
 
+// rBoot ota server details
+// http host (ip or name)
+#define OTA_HOST "192.168.7.5"
+// http port
+#define OTA_PORT 80
+// path of rom on host
+#define OTA_ROM_PATH "/nodemcu-rboot.bin"
+// enable the rboot.otafs() function
+#define OTA_FS_ENABLED
+// path of fs on host
+#define OTA_FS_PATH "/nodemcu-spiffs.bin"
+
+// spiffs position, relative to the start of the
+// 1mb chunk containing the corresponding rom
+#define SPIFFS_FIXED_OFFSET_RBOOT 0x90000
+// spiffs size
+#define SPIFFS_FIXED_SIZE 0x60000
+
 // This enables lots of debug output and changes the serial bit rate. This
 // is normally only used by hardcore developers
 // #define DEVELOP_VERSION
