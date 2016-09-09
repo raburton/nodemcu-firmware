@@ -24,6 +24,7 @@ SPECIAL_MKTARGETS=$(APP_MKTARGETS)
 SUBDIRS= 					\
 	user 					\
 	driver 					\
+	pcm					\
 	platform 				\
 	libc 					\
 	lua 					\
@@ -41,7 +42,8 @@ SUBDIRS= 					\
 	dhtlib					\
 	tsl2561					\
 	net					\
-	http
+	http					\
+	rboot
 
 endif # } PDIR
 
@@ -69,6 +71,7 @@ LD_FILE = $(LDDIR)/nodemcu.ld
 COMPONENTS_eagle.app.v6 = 			\
 	user/libuser.a 				\
 	driver/libdriver.a 			\
+	pcm/pcm.a				\
 	platform/libplatform.a 			\
 	task/libtask.a 				\
 	libc/liblibc.a 				\
@@ -86,6 +89,7 @@ COMPONENTS_eagle.app.v6 = 			\
 	tsl2561/tsl2561lib.a			\
 	http/libhttp.a				\
 	net/libnodemcu_net.a			\
+	rboot/rboot.a 				\
 	modules/libmodules.a			\
 
 # Inspect the modules library and work out which modules need to be linked.
@@ -98,6 +102,7 @@ LINKFLAGS_eagle.app.v6 = 			\
 	-Wl,--gc-sections 			\
 	-Wl,-Map=mapfile 			\
 	-nostdlib 				\
+	-u Cache_Read_Enable_New		\
 	-T$(LD_FILE) 				\
 	-Wl,@../ld/defsym.rom			\
 	-Wl,--no-check-sections 		\
@@ -105,6 +110,7 @@ LINKFLAGS_eagle.app.v6 = 			\
 	-Wl,-static 				\
 	$(addprefix -u , $(SELECTED_MODULE_SYMS)) \
 	-Wl,--start-group 			\
+	$(DEP_LIBS_eagle.app.v6)		\
 	-lc 					\
 	-lgcc 					\
 	-lhal 					\
@@ -113,7 +119,7 @@ LINKFLAGS_eagle.app.v6 = 			\
 	-lnet80211 				\
 	-lwpa 					\
 	-lwpa2					\
-	-lmain 					\
+	-lmain2					\
 	-lsmartconfig 				\
 	-lssl 					\
 	-lcrypto				\

@@ -22,6 +22,24 @@ extern void luaL_assertfail(const char *file, int line, const char *message);
 #define lua_assert(x)    ((x) ? (void) 0 : luaL_assertfail(__FILE__, __LINE__, #x))
 #endif
 
+// rBoot ota server details
+// http host (ip or name)
+#define OTA_HOST "192.168.7.5"
+// http port
+#define OTA_PORT 80
+// path of rom on host
+#define OTA_ROM_PATH "/nodemcu-rboot.bin"
+// enable the rboot.otafs() function
+#define OTA_FS_ENABLED
+// path of fs on host
+#define OTA_FS_PATH "/nodemcu-spiffs.bin"
+
+// spiffs position, relative to the start of the
+// 1mb chunk containing the corresponding rom
+#define SPIFFS_FIXED_OFFSET_RBOOT 0x90000
+// spiffs size
+#define SPIFFS_FIXED_SIZE 0x60000
+
 // This enables lots of debug output and changes the serial bit rate. This
 // is normally only used by hardcore developers
 // #define DEVELOP_VERSION
@@ -68,6 +86,17 @@ extern void luaL_assertfail(const char *file, int line, const char *message);
 
 #define BUILD_SPIFFS	1
 #define SPIFFS_CACHE 1
+
+// Uncomment this next line for fastest startup 
+// It reduces the format time dramatically
+// #define SPIFFS_MAX_FILESYSTEM_SIZE	32768
+//
+// You can force the spiffs file system to be at a fixed location
+// #define SPIFFS_FIXED_LOCATION   	0x100000
+//
+// You can force the SPIFFS file system to end on the next !M boundary
+// (minus the 16k parameter space). THis is useful for certain OTA scenarios
+// #define SPIFFS_SIZE_1M_BOUNDARY
 
 // #define LUA_NUMBER_INTEGRAL
 

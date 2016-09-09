@@ -22,7 +22,7 @@ endif
 #   makefile at its root level - these are then overridden
 #   for a subtree within the makefile rooted therein
 #
-#DEFINES += 
+DEFINES += -Dprintf=c_printf
 
 #############################################################
 # Recursion Magic - Don't touch this!!
@@ -40,5 +40,7 @@ INCLUDES := $(INCLUDES) -I $(PDIR)include
 INCLUDES += -I ./
 INCLUDES += -I ../libc
 INCLUDES += -I ../platform
+INCLUDES += -I ../rboot
+INCLUDES += -I ../../rboot
 PDIR := ../$(PDIR)
 sinclude $(PDIR)Makefile
